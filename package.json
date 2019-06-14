@@ -20,7 +20,9 @@
     "mongoose": "^5.5.11",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
-    "save": "^2.4.0"
+    "save": "^2.4.0",
+    "serialport": "^7.1.5",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

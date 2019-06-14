@@ -1,8 +1,31 @@
 var express = require('express')
+var app = require('express')()
+var server = require('http').createServer(app)
 var session = require('express-session')
 var bodyParser = require('body-parser')
 var request = require('request-promise')
 var mongoose = require('mongoose')
+var io = require('socket.io').listen(server)
+var SerialPort = require('serialport')
+
+var port = new SerialPort('/dev/ttyS3', {baudRate: 9600}, function (err) {
+	if (err) {
+		return console.log('Error: ', err.message)
+	}
+})
+
+var Readline = SerialPort.parsers.Readline;
+var parser = port.pipe(new Readline({delimiter: '\r\n'}))
+
+parser.on('data', (data) => { //Read data
+    console.log(data);
+    var today = new Date();
+    io.sockets.emit('data', {date: today.getDate()+"-"+today.getMonth()+1+"-"+today.getFullYear(), time: (today.getHours())+":"+(today.getMinutes()), data:data})
+});
+
+io.on('connection', (socket) => {
+    console.log("Someone connected.");
+})
 
 require('dotenv').config()
 
@@ -34,18 +57,18 @@ async function collectWeather(cities) {
 }
 
 express()
-	.use(express.static('static'))
-	.use(bodyParser.urlencoded({extended: true}))
-	.use(session({
+	app.use(express.static('static'))
+	app.use(bodyParser.urlencoded({extended: true}))
+	app.use(session({
 		resave: false,
 		saveUninitialized: true,
 		secret: process.env.SESSION_SECRET
 	}))
 
-	.set('view engine', 'ejs')
-	.set('views', 'view')
+	app.set('view engine', 'ejs')
+	app.set('views', 'view')
 
-	.get('/', function(req, res) {
+	app.get('/', function(req, res) {
 		cityModel.find({}, function(err, cities) {
 			collectWeather(cities).then(function(result) {
 				var weatherData = {weatherData: result}
@@ -57,7 +80,7 @@ express()
 		})
   	})
 
-  	.post('/', function(req, res) {
+  	app.post('/', function(req, res) {
   		var newCity = new cityModel({name: req.body.city_name})
   		newCity.save()
   		.then(result => {
@@ -68,5 +91,11 @@ express()
   		})
   	})
 
-  	.listen(4000)
+  	app.get('/sensor', function(req,res) {
+  		res.render('sensor')
+  	})
+
+  	server.listen('4000', () => {
+  		console.log('Server listening on Port 4000');
+	})
   

@@ -1,0 +1,32 @@
+<% include head.ejs %>
+
+<header>
+
+</header>
+
+<body>
+	<section class="hero is-dark">
+	    <div class="hero-body">
+	        <div class="container">
+	            <h1 class="title">
+	                Hoe is het weer in elke stad?
+	            </h1>
+	        </div>
+	    </div>
+	    <div class="media-right">
+	        <div id="clock"></div>
+	    </div>
+	</section>
+	  <h1 class="otherStyle">Temperature Graph</h1>
+	    <h4 class="otherStyle">Date: <span id="date"></span></h4>
+	    <div class="chart-container" style="position: relative; width:75vw; margin: auto;">
+	        <canvas id="myChart"></canvas>
+	    </div>
+	<footer class="footer">
+        <p>Deze opdracht is gemaakt door?</p>
+        <div id="changeText"></div>
+        <button onclick="sendTheAJAX()" id="change">Kom er nu achter</button>
+    </footer>
+</body>
+
+<% include tail.ejs %>
